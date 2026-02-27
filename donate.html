@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donate a Book – Bookora</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">📚 Bookora</div>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="donate.html" id="donateLink">Donate</a>
+            <a href="dashboard.html" id="dashboardLink">Dashboard</a>
+
+            <button id="logoutBtn" class="btn">Logout</button>
+
+            <button id="darkModeToggle" class="dark-btn">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- DONATE FORM -->
+    <div class="donate-container fade-in">
+        <h2>Donate a Book</h2>
+
+        <input type="text" id="bookTitle" placeholder="Book Title">
+        <input type="text" id="bookAuthor" placeholder="Author">
+        <input type="number" id="bookYear" placeholder="Year of Publication">
+
+        <h3>Upload Book Image</h3>
+        <input type="file" id="bookImage" accept="image/*" capture="environment">
+
+        <img id="imagePreview" 
+             style="width:150px; margin-top:10px; display:none; border-radius:8px; box-shadow:0 3px 8px rgba(0,0,0,0.3);">
+
+        <button id="submitDonate" class="btn">Add Book</button>
+    </div>
+
+    <!-- JS FILES -->
+    <script>
+        /* ----------------------------
+           IMAGE PREVIEW & BASE64 SAVE
+        ----------------------------- */
+
+        const imgInput = document.getElementById("bookImage");
+        const preview = document.getElementById("imagePreview");
+        let uploadedImage = "";
+
+        imgInput.addEventListener("change", () => {
+            const file = imgInput.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = () => {
+                uploadedImage = reader.result;
+                preview.src = uploadedImage;
+                preview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
+        });
+
+        /* ----------------------------
+           FORM SUBMISSION
+        ----------------------------- */
+
+        document.getElementById("submitDonate").addEventListener("click", () => {
+            const title = document.getElementById("bookTitle").value.trim();
+            const author = document.getElementById("bookAuthor").value.trim();
+            const year = document.getElementById("bookYear").value.trim();
+
+            if (!title || !author || !year) {
+                alert("Please fill all fields.");
+                return;
+            }
+
+            const currentUser = JSON.parse(localStorage.getItem("bookoraCurrentUser"));
+
+            if (!currentUser) {
+                alert("You must be logged in to donate.");
+                window.location.href = "index.html";
+                return;
+            }
+
+            const books = JSON.parse(localStorage.getItem("bookoraBooks")) || [];
+
+            const newBook = {
+                title,
+                author,
+                year,
+                image: uploadedImage || "",   // ★ photo saved here
+                owner: currentUser.username,
+                ownerContact: "Hidden until accepted",
+                requests: []
+            };
+
+            books.push(newBook);
+            localStorage.setItem("bookoraBooks", JSON.stringify(books));
+
+            alert("Book donated successfully!");
+            window.location.href = "dashboard.html";
+        });
+    </script>
+
+    <!-- AUTH / NAVBAR / DARK MODE JS -->
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+
+</body>
+</html>

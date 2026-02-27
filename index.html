@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookora – Browse Books</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">📚 Bookora</div>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="donate.html" id="donateLink" class="hidden">Donate</a>
+            <a href="dashboard.html" id="dashboardLink" class="hidden">Dashboard</a>
+
+            <button id="signupBtn" class="btn">Sign Up</button>
+            <button id="loginBtn" class="btn">Sign In</button>
+            <button id="logoutBtn" class="btn hidden">Logout</button>
+
+            <button id="darkModeToggle" class="dark-btn">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <h1>Give Books. Get Books.</h1>
+        <p>A free platform where people donate used books to those who need them.</p>
+    </section>
+
+    <!-- SEARCH BAR -->
+    <section class="search-bar">
+        <input type="text" id="searchTitle" placeholder="Search by book title...">
+        <input type="text" id="searchAuthor" placeholder="Search by author...">
+    </section>
+
+    <!-- BOOK LIST -->
+    <div id="book-list" class="book-list"></div>
+
+    <!-- LOGIN / SIGNUP MODAL -->
+    <div id="authModal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="authTitle">Login</h2>
+
+            <input type="text" id="authUsername" placeholder="Username">
+            <input type="password" id="authPassword" placeholder="Password">
+
+            <button id="authSubmitBtn" class="btn modal-btn">Continue</button>
+
+            <p id="switchAuthText"></p>
+
+            <button id="closeModal" class="btn close-btn">Close</button>
+        </div>
+    </div>
+
+    <!-- JS FILES -->
+    <script src="auth.js"></script>
+    <script src="books.js"></script>
+    <script src="ui.js"></script>
+    <script src="app.js"></script>
+
+</body>
+</html>

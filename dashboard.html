@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Dashboard – Bookora</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="logo">📚 Bookora</div>
+
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="donate.html">Donate</a>
+            <a href="dashboard.html">Dashboard</a>
+
+            <button id="logoutBtn" class="btn">Logout</button>
+
+            <button id="darkModeToggle" class="dark-btn">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <div class="dashboard-section fade-in">
+
+        <h2>Your Donated Books</h2>
+        <div id="donatedBooksList"></div>
+
+        <h2>Requests You Received</h2>
+        <div id="receivedRequestsList"></div>
+
+        <h2>Books You Requested</h2>
+        <div id="sentRequestsList"></div>
+
+    </div>
+
+    <script>
+        const currentUser = JSON.parse(localStorage.getItem("bookoraCurrentUser"));
+        const users = JSON.parse(localStorage.getItem("bookoraUsers")) || [];
+        const books = JSON.parse(localStorage.getItem("bookoraBooks")) || [];
+
+        if (!currentUser) {
+            alert("You must be logged in.");
+            window.location.href = "index.html";
+        }
+
+        /* ----------------------------------------------------
+           SHOW DONATED BOOKS
+        ---------------------------------------------------- */
+        function loadDonatedBooks() {
+            const donatedDiv = document.getElementById("donatedBooksList");
+            donatedDiv.innerHTML = "";
+
+            const donated = books.filter(b => b.owner === currentUser.username);
+
+            if (donated.length === 0) {
+                donatedDiv.innerHTML = "<p>No books donated yet.</p>";
+                return;
+            }
+
+            donated.forEach(book => {
+                donatedDiv.innerHTML += `
+                    <div class="dashboard-card">
+                        <h3>${book.title}</h3>
+                        <p><strong>Author:</strong> ${book.author}</p>
+                        <p><strong>Year:</strong> ${book.year}</p>
+
+                        <img src="${book.image}" style="width:130px; border-radius:8px; margin:10px 0;">
+
+                        <p><strong>Requests:</strong> ${book.requests.length}</p>
+                    </div>
+                `;
+            });
+        }
+
+        /* ----------------------------------------------------
+           SHOW RECEIVED REQUESTS
+        ---------------------------------------------------- */
+        function loadReceivedRequests() {
+            const receivedDiv = document.getElementById("receivedRequestsList");
+            receivedDiv.innerHTML = "";
+
+            const received = [];
+
+            books.forEach(book => {
+                if (book.owner === currentUser.username) {
+                    book.requests.forEach(req => {
+                        received.push({
+                            title: book.title,
+                            author: book.author,
+                            requester: req.requester,
+                            bookIndex: books.indexOf(book),
+                            requestIndex: book.requests.indexOf(req)
+                        });
+                    });
+                }
+            });
+
+            if (received.length === 0) {
+                receivedDiv.innerHTML = "<p>No requests received.</p>";
+                return;
+            }
+
+            received.forEach(item => {
+                receivedDiv.innerHTML += `
+                    <div class="dashboard-card">
+                        <h3>${item.title}</h3>
+                        <p><strong>Requested by:</strong> ${item.requester}</p>
+
+                        <button class="req-btn req-approve"
+                            onclick="approveRequest(${item.bookIndex}, ${item.requestIndex})">Accept</button>
+
+                        <button class="req-btn req-decline"
+                            onclick="declineRequest(${item.bookIndex}, ${item.requestIndex})">Decline</button>
+                    </div>
+                `;
+            });
+        }
+
+        /* ----------------------------------------------------
+           APPROVE REQUEST
+        ---------------------------------------------------- */
+        function approveRequest(bookIndex, reqIndex) {
+            books[bookIndex].requests[reqIndex].status = "accepted";
+
+            localStorage.setItem("bookoraBooks", JSON.stringify(books));
+            alert("Request accepted!");
+
+            loadReceivedRequests();
+        }
+
+        /* ----------------------------------------------------
+           DECLINE REQUEST
+        ---------------------------------------------------- */
+        function declineRequest(bookIndex, reqIndex) {
+            books[bookIndex].requests.splice(reqIndex, 1);
+
+            localStorage.setItem("bookoraBooks", JSON.stringify(books));
+            alert("Request declined.");
+
+            loadReceivedRequests();
+        }
+
+        /* ----------------------------------------------------
+           SHOW SENT REQUESTS
+        ---------------------------------------------------- */
+        function loadSentRequests() {
+            const sentDiv = document.getElementById("sentRequestsList");
+            sentDiv.innerHTML = "";
+
+            const sent = [];
+
+            books.forEach(book => {
+                book.requests.forEach(req => {
+                    if (req.requester === currentUser.username) {
+                        sent.push({
+                            title: book.title,
+                            author: book.author,
+                            status: req.status || "pending"
+                        });
+                    }
+                });
+            });
+
+            if (sent.length === 0) {
+                sentDiv.innerHTML = "<p>No books requested.</p>";
+                return;
+            }
+
+            sent.forEach(item => {
+                sentDiv.innerHTML += `
+                    <div class="dashboard-card">
+                        <h3>${item.title}</h3>
+                        <p><strong>Author:</strong> ${item.author}</p>
+                        <p><strong>Status:</strong> ${item.status}</p>
+                    </div>
+                `;
+            });
+        }
+
+        /* ----------------------------------------------------
+           LOAD ALL SECTIONS
+        ---------------------------------------------------- */
+        loadDonatedBooks();
+        loadReceivedRequests();
+        loadSentRequests();
+    </script>
+
+    <script src="js/auth.js"></script>
+    <script src="js/ui.js"></script>
+
+</body>
+</html>
